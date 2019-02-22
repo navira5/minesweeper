@@ -23,21 +23,23 @@ class Index extends React.Component {
 
 handleChange = level => {
 
-  let boardSize = 0;
+  let boardSize;
+  let flags;
  
   if (level === 'Easy') {
     boardSize = 10;
+    flags = 10;
  
   } else if (level === 'Medium') {
     boardSize = 13;
+    flags = 40;
 
   } else if (level === 'Hard') {
     boardSize = 16;
-    
+    flags = 99;
   }
-  this.setState({ boardSize });
+  this.setState({ boardSize, flagCount: flags });
 }
-
 
 
 render() {
