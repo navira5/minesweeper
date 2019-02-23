@@ -81,7 +81,7 @@ class Index extends React.Component {
     const squareNum = boardSize * boardSize;
 
 
-    //bug: has repeat random nums
+    //bug: has repeat random nums; this is also messing up square count bc of double counting
     const randomMines = [...Array(mines)].map((item, index) => {
       return Math.floor(Math.random() * squareNum);
     });
@@ -91,9 +91,28 @@ class Index extends React.Component {
     const proximity = arr => {
       for(let i = 0; i < arr.length; i++) {
         let curr = arr[i]
-        console.log(curr)
-       //must account for bombs on edges--> messes up square count
-        impactedSquares.push(curr - 11, curr - 10, curr - 9, curr - 1, curr + 1, curr + 9, curr + 10, curr + 11)
+        let currStr = arr[i].toString();
+
+        //first column
+        if(currStr[1] === '0' || currStr[0] === '0') {
+          impactedSquares.push(curr + 1, curr + 10, curr + 11, curr - 10, curr - 9);
+        }
+        //first row
+        else if(currStr.length === 1) {
+          impactedSquares.push(curr - 1, curr + 1, curr + 9, curr + 11, curr + 10);
+        }
+        //last column
+        else if (currStr[1] === '9' || (currStr[0] === '9' && currStr.length === 1)) {
+          impactedSquares.push(curr - 11, curr - 10, curr - 1, curr + 9, curr + 10, curr + 11);
+        }
+        //last row
+        else if (currStr[1] === '9' && currStr.length === 2) {
+          impactedSquares.push(curr - 11, curr - 10, curr - 9, curr - 1, curr + 1);
+        }
+
+        else {
+          impactedSquares.push(curr - 11, curr - 10, curr - 9, curr - 1, curr + 1, curr + 9, curr + 10, curr + 11)
+        }
       }
     }
 
@@ -102,12 +121,12 @@ class Index extends React.Component {
     
     
     const impactedLookUp = impactedSquares.reduce((acc, item) => {
-      if(item > 0 && item < squareNum) {
-        item.toString()
-        acc[item] ? acc[item]++ : acc[item] = 1
-      } else {
-        console.log(item, 'cell num out of bounds')
-      }
+
+      
+       if(item >= 0 && item < squareNum) {
+         acc[item] ? acc[item]++ : acc[item] = 1
+       }
+      
       return acc;
     }, {})
     console.log(randomMines, 'random');
