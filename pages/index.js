@@ -39,16 +39,17 @@ import { render } from 'fela-dom';
 class Index extends React.Component {
   constructor(props) {
     super(props);
-  }
+  
 
-  state = {
+  this.state = {
     cell: {
-      neighbors: {},
+      squarePos: 0,
       hasMine: false,
       hasFlag: false,
       proximityCount: 0,
       isOpen: false
     },
+    showSquare: [],
     boardSize: 10,
     squaresOnBoard: 100,
     level: 'Easy',
@@ -57,7 +58,8 @@ class Index extends React.Component {
     time: 0,
     randomeMines: []
   };
-
+  this.handleClick = this.handleClick.bind(this)
+  }
   handleChange = level => {
     let boardSize;
     let mines;
@@ -76,10 +78,19 @@ class Index extends React.Component {
     this.setState({ boardSize, mines, squaresOnBoard });
   };
 
+  handleClick = (index) => {
+
+    const cell = this.state.cell
+    const showSquare = this.state.showSquare;
+    showSquare.push(index);
+    //console.log(arr, 'array')
+    this.setState({ cell , showSquare: arr})
+    
+  }
+
   render() {
     const { cell, boardSize, mines, level } = this.state;
     const squareNum = boardSize * boardSize;
-
 
     //bug: has repeat random nums; this is also messing up square count bc of double counting
     const randomMines = [...Array(mines)].map((item, index) => {
@@ -91,7 +102,6 @@ class Index extends React.Component {
     const proximity = (arr, level) => {
       let minor, major, middle;
 
-      
       if(level === 'Easy') {
         minor = 11;
         middle = 10;
@@ -136,27 +146,22 @@ class Index extends React.Component {
 
     proximity(randomMines, level)
 
-    
-    
     const impactedLookUp = impactedSquares.reduce((acc, item) => {
        if(item >= 0 && item < squareNum) {
          acc[item] ? acc[item]++ : acc[item] = 1
        }
       return acc;
     }, {})
-    // console.log(randomMines, 'random');
-    // console.log(impactedSquares, 'impacted squares');
-    // console.log(impactedLookUp, 'impacted lookup');
-    
+  
+  
     const grid = [...Array(squareNum).keys()].map((i, index) => {
       
       randomMines.includes(i) ? cell.hasMine = true : cell.hasMine = false;
       impactedLookUp[i] ? cell.proximityCount = impactedLookUp[i] : cell.proximityCount = 0;
       
-     
-      return <Square key={i} cell={cell} disabled={false}>
+      //console.log(i, 'cell num', cell.isOpen, 'open status')
+      return <Square key={i} cell={cell} disabled={false} onClick={() => this.handleClick(i, event)}>
           {cell.hasMine && <Mine />}
-         
           {!cell.hasMine && `${i}`}
         </Square>;
     });
@@ -166,9 +171,12 @@ class Index extends React.Component {
         title={`Minesweeper (active)`}
         handleChange={this.handleChange}
         flagCount={this.state.flagCount}
-        time={this.state.time}
-      >
-        <Desk boardSize={boardSize}>{grid}</Desk>
+        time={this.state.time}>
+
+        <Desk boardSize={boardSize}>
+          {grid}
+        </Desk>
+
       </Layout>
     );
   }
