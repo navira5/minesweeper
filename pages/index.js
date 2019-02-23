@@ -43,10 +43,10 @@ class Index extends React.Component {
 
   state = {
     cell: {
-      index: null,
+      neighbors: {},
       hasMine: false,
       hasFlag: false,
-      mineProximityCount: 0,
+      proximityCount: 0,
       isOpen: false
     },
     boardSize: 10,
@@ -58,7 +58,6 @@ class Index extends React.Component {
     randomeMines: []
   };
 
-  
   handleChange = level => {
     let boardSize;
     let mines;
@@ -67,7 +66,6 @@ class Index extends React.Component {
     if (level === 'Easy') {
       boardSize = 10;
       mines = 10;
-    
     } else if (level === 'Medium') {
       boardSize = 13;
       mines = 40;
@@ -79,34 +77,66 @@ class Index extends React.Component {
   };
 
   render() {
-    const {cell, boardSize, mines} = this.state
-    const squareNum = boardSize * boardSize
-    console.log(randomMines)
+    const { cell, boardSize, mines } = this.state;
+    const squareNum = boardSize * boardSize;
+
 
     //bug: has repeat random nums
     const randomMines = [...Array(mines)].map((item, index) => {
       return Math.floor(Math.random() * squareNum);
-    })
-   
-    const grid = [...Array(squareNum).keys()].map((i, index) => 
-      {
-        randomMines.includes(i) ? cell.hasMine = true : cell.hasMine = false;
-   
-      return <Square key={i} cell={cell} disabled={false}>
-            {cell.hasMine && <Mine />}
-            {!randomMines.includes(i) && `${i}`}
-          
-          </Square>;
     });
 
+    const  impactedSquares = []
+
+    const proximity = arr => {
+      for(let i = 0; i < arr.length; i++) {
+        let curr = arr[i]
+        console.log(curr)
+       //must account for bombs on edges--> messes up square count
+        impactedSquares.push(curr - 11, curr - 10, curr - 9, curr - 1, curr + 1, curr + 9, curr + 10, curr + 11)
+      }
+    }
+
+    proximity(randomMines)
+
     
-  
-    return <Layout title={`Minesweeper (active)`} handleChange={this.handleChange} flagCount={this.state.flagCount} time={this.state.time}>
-        <Desk boardSize={boardSize}>
-          {grid}
-          
-        </Desk>
-      </Layout>;
+    
+    const impactedLookUp = impactedSquares.reduce((acc, item) => {
+      if(item > 0 && item < squareNum) {
+        item.toString()
+        acc[item] ? acc[item]++ : acc[item] = 1
+      } else {
+        console.log(item, 'cell num out of bounds')
+      }
+      return acc;
+    }, {})
+    console.log(randomMines, 'random');
+    console.log(impactedSquares, 'impacted squares');
+    console.log(impactedLookUp, 'impacted lookup');
+    
+    const grid = [...Array(squareNum).keys()].map((i, index) => {
+      
+      randomMines.includes(i) ? cell.hasMine = true : cell.hasMine = false;
+      impactedLookUp[i] ? cell.proximityCount = impactedLookUp[i] : cell.proximityCount = 0;
+      
+     
+      return <Square key={i} cell={cell} disabled={false}>
+          {cell.hasMine && <Mine />}
+         
+          {!cell.hasMine && `${cell.proximityCount}`}
+        </Square>;
+    });
+
+    return (
+      <Layout
+        title={`Minesweeper (active)`}
+        handleChange={this.handleChange}
+        flagCount={this.state.flagCount}
+        time={this.state.time}
+      >
+        <Desk boardSize={boardSize}>{grid}</Desk>
+      </Layout>
+    );
   }
 }
 
