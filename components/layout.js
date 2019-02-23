@@ -17,6 +17,7 @@ export default ({ children, title = 'Minesweeper', handleChange, flagCount, time
         <div>Time: {time} </div>
         <div> Level:
           <select onChange={(e) => handleChange(e.target.value)}>
+          <option value='Easy'>Select Difficulty</option>
             <option value='Easy'>Easy</option>
             <option value='Medium'>Medium</option>
             <option value='Hard'>Hard</option>

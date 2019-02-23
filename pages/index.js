@@ -77,7 +77,7 @@ class Index extends React.Component {
   };
 
   render() {
-    const { cell, boardSize, mines } = this.state;
+    const { cell, boardSize, mines, level } = this.state;
     const squareNum = boardSize * boardSize;
 
 
@@ -88,50 +88,65 @@ class Index extends React.Component {
 
     const  impactedSquares = []
 
-    const proximity = arr => {
+    const proximity = (arr, level) => {
+      let minor, major, middle;
+
+      
+      if(level === 'Easy') {
+        minor = 11;
+        middle = 10;
+        major = 9;
+      } else if (level === 'Medium') {
+        minor = 14;
+        middle = 13;
+        major = 12;
+      } else {
+        minor = 17;
+        middle = 16;
+        major = 15;
+      }
+   
+      //incorrect currStr verification when set to medium or hard
       for(let i = 0; i < arr.length; i++) {
-        let curr = arr[i]
+        let curr = arr[i];
         let currStr = arr[i].toString();
 
         //first column
         if(currStr[1] === '0' || currStr[0] === '0') {
-          impactedSquares.push(curr + 1, curr + 10, curr + 11, curr - 10, curr - 9);
+          impactedSquares.push(curr + 1, curr + middle, curr + minor, curr - middle, curr - major);
         }
         //first row
         else if(currStr.length === 1) {
-          impactedSquares.push(curr - 1, curr + 1, curr + 9, curr + 11, curr + 10);
+          impactedSquares.push(curr - 1, curr + 1, curr + major, curr + minor, curr + middle);
         }
         //last column
         else if (currStr[1] === '9' || (currStr[0] === '9' && currStr.length === 1)) {
-          impactedSquares.push(curr - 11, curr - 10, curr - 1, curr + 9, curr + 10, curr + 11);
+          impactedSquares.push(curr - minor, curr - middle, curr - 1, curr + major, curr + middle);
         }
         //last row
         else if (currStr[1] === '9' && currStr.length === 2) {
-          impactedSquares.push(curr - 11, curr - 10, curr - 9, curr - 1, curr + 1);
+          impactedSquares.push(curr - minor, curr - middle, curr - major, curr - 1, curr + 1);
         }
-
+        //it's not touching the edges
         else {
-          impactedSquares.push(curr - 11, curr - 10, curr - 9, curr - 1, curr + 1, curr + 9, curr + 10, curr + 11)
+          impactedSquares.push(curr - minor, curr - middle, curr - major, curr - 1, curr + 1, curr + major, curr + middle, curr + minor)
         }
       }
     }
 
-    proximity(randomMines)
+    proximity(randomMines, level)
 
     
     
     const impactedLookUp = impactedSquares.reduce((acc, item) => {
-
-      
        if(item >= 0 && item < squareNum) {
          acc[item] ? acc[item]++ : acc[item] = 1
        }
-      
       return acc;
     }, {})
-    console.log(randomMines, 'random');
-    console.log(impactedSquares, 'impacted squares');
-    console.log(impactedLookUp, 'impacted lookup');
+    // console.log(randomMines, 'random');
+    // console.log(impactedSquares, 'impacted squares');
+    // console.log(impactedLookUp, 'impacted lookup');
     
     const grid = [...Array(squareNum).keys()].map((i, index) => {
       
@@ -142,7 +157,7 @@ class Index extends React.Component {
       return <Square key={i} cell={cell} disabled={false}>
           {cell.hasMine && <Mine />}
          
-          {!cell.hasMine && `${cell.proximityCount}`}
+          {!cell.hasMine && `${i}`}
         </Square>;
     });
 
