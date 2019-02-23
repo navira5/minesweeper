@@ -18,7 +18,7 @@ The rules are pretty simple (try to play with the [demo](https://sweeper.now.sh/
 
   ```Board Set Up```
   * Should be able to select easy, medium, hard levels; default is easy - DONE
-  * Should place random mines on board based on selection of easy, medium, hard
+  * Should place random mines on board based on selection of easy, medium, hard - DONE
   * Should display number of mines in header - DONE
   * Should display initial time in header - DONE
   * Should display reset button which clears the board and resets to easy level
