@@ -10,32 +10,6 @@ import Board from '../components/board';
 import Head from '../components/head';
 import { render } from 'fela-dom';
 
-// class Index extends React.Component {
-//   constructor() {
-//     super();
-//   }
-
-//   state = {
-//     gameActive: false,
-//     level: 'Easy',
-//     cellsOpen: 0,
-//     boardSize: 10,
-//     flags: 10,
-//     mines: 10,
-//     time: 0,
-//   };
-
-//   render() {
-//     return (
-//       <div className="minesweeper">
-//         <h1 className="title">Minesweeper</h1>
-//         <Head time={this.state.time} flags={this.state.flags}/>
-//       </div>
-//     );
-//   }
-// }
-
-
 class Index extends React.Component {
   constructor(props) {
     super(props);
@@ -49,42 +23,73 @@ class Index extends React.Component {
       proximityCount: 0,
       isOpen: false
     },
-    showSquare: [],
+    sqaures: [],
     boardSize: 10,
-    squaresOnBoard: 100,
+    //squaresOnBoard: 100,
     level: 'Easy',
     flagCount: 10,
-    mines: 10,
+    minesCount: 10,
     time: 0,
     randomeMines: []
   };
-  this.handleClick = this.handleClick.bind(this)
+
   }
   handleChange = level => {
     let boardSize;
-    let mines;
-    let squaresOnBoard = boardSize * boardSize;
+    let minesCount;
 
     if (level === 'Easy') {
       boardSize = 10;
-      mines = 10;
+      minesCount = 10;
     } else if (level === 'Medium') {
       boardSize = 13;
-      mines = 40;
+      minesCount = 40;
     } else if (level === 'Hard') {
       boardSize = 16;
-      mines = 99;
+      minesCount = 99;
     }
-    this.setState({ boardSize, mines, squaresOnBoard });
+    const squares = this.generareSquares(boardSize, minesCount);
+    console.log('dsdadsa', squares)
+    this.setState({ boardSize, minesCount, squares });
   };
 
-  handleClick = (index) => {
+  generareSquares = (boardSize, minesCount) => {
+    const squares = [...Array(boardSize * boardSize)].map((s, i) => {
+      return {
+        squarePos: i,
+        hasMine: false,
+        hasFlag: false,
+        proximityCount: 0,
+        isOpen: false        
+      }
+    });
 
-    const cell = this.state.cell
-    const showSquare = this.state.showSquare;
-    showSquare.push(index);
+    [...Array(minesCount)].forEach(m => {
+      /*let randomMine = squares[Math.floor(Math.random() * squares.length)];
+      while (randomMine.hasMine) {
+        randomMine = squares[Math.floor(Math.random() * squares.length)];
+      }
+      randomMine.hasMine = true*/
+      const randomMine = squares[Math.floor(Math.random() * squares.length)];
+
+      if (!randomMine.hasMine) {
+        randomMine.hasMine = true;
+      } else {
+        const randomMine = squares[Math.floor(Math.random() * squares.length)];
+        randomMine.hasMine = true;
+      }
+    });
+
+    return squares;
+  }
+
+  handleClick = (index) => {
+    console.log('iiiiiiiiii', index)
+    //const cell = this.state.cell
+    //const showSquare = this.state.showSquare;
+    //showSquare.push(index);
     //console.log(arr, 'array')
-    this.setState({ cell , showSquare: arr})
+    //this.setState({ cell })
     
   }
 
@@ -160,9 +165,9 @@ class Index extends React.Component {
       impactedLookUp[i] ? cell.proximityCount = impactedLookUp[i] : cell.proximityCount = 0;
       
       //console.log(i, 'cell num', cell.isOpen, 'open status')
-      return <Square key={i} cell={cell} disabled={false} onClick={() => this.handleClick(i, event)}>
+      return <Square key={i} cell={cell} disabled={false} onClick={() => this.handleClick(i)}>
           {cell.hasMine && <Mine />}
-          {!cell.hasMine && `${i}`}
+          {!cell.hasMine && `${cell.proximityCount}`}
         </Square>;
     });
 
@@ -172,11 +177,9 @@ class Index extends React.Component {
         handleChange={this.handleChange}
         flagCount={this.state.flagCount}
         time={this.state.time}>
-
         <Desk boardSize={boardSize}>
           {grid}
         </Desk>
-
       </Layout>
     );
   }
