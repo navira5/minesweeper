@@ -34,8 +34,8 @@ class Index extends React.Component {
   }
 
   componentDidMount() {
-    console.log('did mmmm')
-    this.handleChange(this.state.level)
+    console.log('did mmmm');
+    this.handleChange(this.state.level);
   }
 
   handleChange = level => {
@@ -81,17 +81,40 @@ class Index extends React.Component {
     return squares;
   };
 
+  minesInProximity = cell => {
+    const { squares } = this.state;
+    let minesNearby = 0;
+    for (let row = -1; row <= 1; row++) {
+      for (let col = -1; col <= 1; col++) {
+        if (cell.y + row >= 0 && cell.x + col >= 0) {
+          if (
+            cell.y + row < squares.length &&
+            cell.x + col < squares[0].length
+          ) {
+            if (
+              squares[cell.y + row][cell.x + col].hasMine &&
+              !(row === 0 && col === 0)
+            ) {
+              minesNearby++;
+            }
+          }
+        }
+      }
+    }
+    return minesNearby;
+  };
+
   handleClick = square => {
     console.log('iiiiiiiiii', square);
     if (square.hasMine) {
-      alert('Game Over!!!!')
+      alert('Game Over!!!!');
     } else if (square.proximityCount > 0) {
       square.isOpen = true;
       const newSquares = [...this.state.squares];
       newSquares.splice(square.squarePos, 1, square);
-      this.setState({squares: newSquares});
+      this.setState({ squares: newSquares });
     } else {
-
+      console.log('cvxcvcvxcvxvx', this.minesInProximity(square));
     }
     //const cell = this.state.cell
     //const showSquare = this.state.showSquare;
@@ -101,7 +124,10 @@ class Index extends React.Component {
   };
 
   proximity = (arr, level, boardSize, minesCount, squares) => {
-    let minor, major, middle, impactedSquares = [];
+    let minor,
+      major,
+      middle,
+      impactedSquares = [];
 
     if (level === 'Easy') {
       minor = 11;
@@ -124,44 +150,76 @@ class Index extends React.Component {
 
       //first column
       if (currStr[1] === '0' || currStr[0] === '0') {
-        impactedSquares.push(curr + 1, curr + middle, curr + minor, curr - middle, curr - major);
-      }
-      //first row
-      else if (currStr.length === 1) {
-        impactedSquares.push(curr - 1, curr + 1, curr + major, curr + minor, curr + middle);
-      }
-      //last column
-      else if (currStr[1] === '9' || (currStr[0] === '9' && currStr.length === 1)) {
-        impactedSquares.push(curr - minor, curr - middle, curr - 1, curr + major, curr + middle);
-      }
-      //last row
-      else if (currStr[1] === '9' && currStr.length === 2) {
-        impactedSquares.push(curr - minor, curr - middle, curr - major, curr - 1, curr + 1);
-      }
-      //it's not touching the edges
-      else {
-        impactedSquares.push(curr - minor, curr - middle, curr - major, curr - 1, curr + 1, curr + major, curr + middle, curr + minor)
+        impactedSquares.push(
+          curr + 1,
+          curr + middle,
+          curr + minor,
+          curr - middle,
+          curr - major
+        );
+      } else if (currStr.length === 1) {
+        //first row
+        impactedSquares.push(
+          curr - 1,
+          curr + 1,
+          curr + major,
+          curr + minor,
+          curr + middle
+        );
+      } else if (
+        currStr[1] === '9' ||
+        (currStr[0] === '9' && currStr.length === 1)
+      ) {
+        //last column
+        impactedSquares.push(
+          curr - minor,
+          curr - middle,
+          curr - 1,
+          curr + major,
+          curr + middle
+        );
+      } else if (currStr[1] === '9' && currStr.length === 2) {
+        //last row
+        impactedSquares.push(
+          curr - minor,
+          curr - middle,
+          curr - major,
+          curr - 1,
+          curr + 1
+        );
+      } else {
+        //it's not touching the edges
+        impactedSquares.push(
+          curr - minor,
+          curr - middle,
+          curr - major,
+          curr - 1,
+          curr + 1,
+          curr + major,
+          curr + middle,
+          curr + minor
+        );
       }
     }
     impactedSquares = impactedSquares.reduce((acc, item) => {
       if (item >= 0 && item < squares.length) {
-        acc[item] ? acc[item]++ : acc[item] = 1
+        acc[item] ? acc[item]++ : (acc[item] = 1);
       }
       return acc;
     }, {});
     const newSquares = squares.map((s, i) => {
       s.proximityCount = impactedSquares[i] ? impactedSquares[i] : 0;
       return s;
-    })
+    });
     this.setState({ boardSize, minesCount, squares: newSquares });
     //console.log('impacted squares', impactedSquares);
     //return impactedSquares;
-  }  
+  };
 
   render() {
-    const {  boardSize, squares } = this.state;
-    console.log('all squars', squares)
-  
+    const { boardSize, squares } = this.state;
+    console.log('all squars', squares);
+
     const grid = squares.map((s, i) => {
       return (
         <Square
@@ -170,7 +228,8 @@ class Index extends React.Component {
           disabled={false}
           onClick={() => this.handleClick(s)}
         >
-          {!s.hasMine && s.isOpen && `${s.proximityCount}`}
+          {s.hasMine && <Mine />}
+          {!s.hasMine && `${s.proximityCount}`}
         </Square>
       );
     });
