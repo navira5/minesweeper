@@ -47,8 +47,6 @@ class Index extends React.Component {
       boardSize = 10;
       minesCount = 10;
     } else if (level === 'Medium') {
-      // boardSize = 13;
-      // minesCount = 40;
       boardSize = 13;
       minesCount = 40;
     } else if (level === 'Hard') {
@@ -59,12 +57,9 @@ class Index extends React.Component {
     this.make2DArray(squares);
     const squaresWithMine = squares.filter(s => s.hasMine);
     this.proximity(squaresWithMine, level, boardSize, minesCount, squares);
-    //console.log('dsdadsa', squares.filter(a => a.hasMine))
-    //this.setState({ boardSize, minesCount, squares });
   };
 
   generareSquares = (boardSize, minesCount) => {
-    
     //make array with objects (info about each square will go in here)
     const squares = [...Array(boardSize * boardSize)].map((s, i) => {
       return {
@@ -75,7 +70,6 @@ class Index extends React.Component {
         isOpen: false
       };
     });
-
     //given the num of mines, generate a random index position and change hasMine property to true
     [...Array(minesCount)].forEach(m => {
       
@@ -141,86 +135,9 @@ class Index extends React.Component {
 
   minesInProximity = (square, level) => {
     
-    //square.isOpen = true;
-
-    
-
-      let minor,
-        major,
-        middle,
-        impactedSquares = [];
-
-      if (level === 'Easy') {
-        minor = 11;
-        middle = 10;
-        major = 9;
-      } else if (level === 'Medium') {
-        minor = 14;
-        middle = 13;
-        major = 12;
-      } else {
-        minor = 17;
-        middle = 16;
-        major = 15;
-      }
-
-      let curr = square.squarePos
-      let currStr = curr.toString();
-    
-        //first column
-        if (currStr[1] === '0' || currStr[0] === '0') {
-          impactedSquares.push(
-            curr + 1,
-            curr + middle,
-            curr + minor,
-            curr - middle,
-            curr - major
-          );
-        } else if (currStr.length === 1) {
-          //first row
-          impactedSquares.push(
-            curr - 1,
-            curr + 1,
-            curr + major,
-            curr + minor,
-            curr + middle
-          );
-        } else if (
-          currStr[1] === '9' ||
-          (currStr[0] === '9' && currStr.length === 1)
-        ) {
-          //last column
-          impactedSquares.push(
-            curr - minor,
-            curr - middle,
-            curr - 1,
-            curr + major,
-            curr + middle
-          );
-        } else if (currStr[1] === '9' && currStr.length === 2) {
-          //last row
-          impactedSquares.push(
-            curr - minor,
-            curr - middle,
-            curr - major,
-            curr - 1,
-            curr + 1
-          );
-        } else {
-          //it's not touching an edge
-          impactedSquares.push(
-            curr - minor,
-            curr - middle,
-            curr - major,
-            curr - 1,
-            curr + 1,
-            curr + major,
-            curr + middle,
-            curr + minor
-          );
-        }
-
+    const impactedSquares = this.retrieveSquaresAroundTarget(square, level)
     square.isOpen = true;
+
     //array of squares with 0 prox and now open
     const squaresArround = this.state.squares.filter((item) => {
       if (impactedSquares.includes(item.squarePos)) {
@@ -234,78 +151,20 @@ class Index extends React.Component {
       }
     })
 
-    for(let i = 0; i < squaresArround.length; i++) {
-      let newSquareToCheck = squaresArround[i];
-      this.minesInProximity(newSquareToCheck, 'Easy');
-    }
-
-  
+    //recursively check for any squares with 0 proximity squares touching original clicked square
+    squaresArround.forEach(s => {
+      this.minesInProximity(s, 'Easy');
+    })
+ 
+    //make sure game board re-renders
     const updateSquares = this.state.squares;
     this.setState( {squares: updateSquares})
-    console.log(squaresArround, 'squaresArround ')
   
-
-    //console.log(array2D, '2d');
-
-    // const findEmptySquares = (squareX, squareY, square) => {
-
-    //   const x = squareX;
-    //   const y = squareY;
-
-    //   //out of range check
-    //   if ((x < 0) || (x > 9) || (y < 0) || (y > 9)) {
-    //     return;
-    //   } else if (square.proximityCount !== 0) {
-    //     square.isOpen = true;
-    //     return;
-    //   } else {
-    //     findEmptySquares(square.x - 1, square.y - 1, square);
-    //     findEmptySquares(square.x - 1, square.y, square);
-    //     findEmptySquares(square.x - 1, square.y + 1, square);
-    //     findEmptySquares(square.x, square.y - 1, square);
-    //     findEmptySquares(square.x, square.y + 1, square);
-    //     findEmptySquares(square.x + 1, square.y - 1, square);
-    //     findEmptySquares(square.x + 1, square.y, square);
-    //     findEmptySquares(square.x + 1, square.y + 1, square);
-    //   }
-    // }
-    // findEmptySquares(square.x, square.y, square);
-
-    // const { squares } = this.state;
-    // let minesNearby = 0;
-    // for (let row = -1; row <= 1; row++) {
-    //   for (let col = -1; col <= 1; col++) {
-    //     if (cell.y + row >= 0 && cell.x + col >= 0) {
-    //       if (
-    //         cell.y + row < squares.length &&
-    //         cell.x + col < squares[0].length
-    //       ) {
-    //         if (
-    //           squares[cell.y + row][cell.x + col].hasMine &&
-    //           !(row === 0 && col === 0)
-    //         ) {
-    //           minesNearby++;
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-    // return minesNearby;
   };
 
-//   squaresArround = arr => {
-// const squaresArround = this.state.squares.filter((item) => {
-//       if (impactedSquares.includes(item.squarePos)) {
-//         if(item.proximityCount === 0 && !item.isOpen) {
-//           item.isOpen = true;
-//           return item
-//         }
-//       }
-//     })
-//   }
 
-  handleClick = square => {
-    console.log('iiiiiiiiii', square);
+  handleClick = (square, e) => {
+    console.log('eeeeeiiiiiiiiii', e);
 
     if (square.hasMine) {
       alert('Game Over!!!!')
@@ -322,9 +181,94 @@ class Index extends React.Component {
     }
   };
 
-  //handleRightClick = ()
+  handleRightClick = (e, cell) => {
+    e.preventDefault()
+    console.log('rrrrr', cell);
+    cell.hasFlag = true;
+    this.setState(prevState => ({squares: prevState.squares}))
+    //console.log('uuuuuu', );
+  }
+
+  retrieveSquaresAroundTarget = (square, level) => {
+    let curr = square.squarePos;
+    let currStr = curr.toString();
+    let minor,
+      major,
+      middle,
+      impactedSquares = [];
+  
+    if (level === 'Easy') {
+      minor = 11;
+      middle = 10;
+      major = 9;
+    } else if (level === 'Medium') {
+      minor = 14;
+      middle = 13;
+      major = 12;
+    } else {
+      minor = 17;
+      middle = 16;
+      major = 15;
+    }
+
+    //first column
+    if (currStr[1] === '0' || currStr[0] === '0') {
+      impactedSquares.push(
+        curr + 1,
+        curr + middle,
+        curr + minor,
+        curr - middle,
+        curr - major
+      );
+    } else if (currStr.length === 1) {
+      //first row
+      impactedSquares.push(
+        curr - 1,
+        curr + 1,
+        curr + major,
+        curr + minor,
+        curr + middle
+      );
+    } else if (
+      currStr[1] === '9' ||
+      (currStr[0] === '9' && currStr.length === 1)
+    ) {
+      //last column
+      impactedSquares.push(
+        curr - minor,
+        curr - middle,
+        curr - 1,
+        curr + major,
+        curr + middle
+      );
+    } else if (currStr[1] === '9' && currStr.length === 2) {
+      //last row
+      impactedSquares.push(
+        curr - minor,
+        curr - middle,
+        curr - major,
+        curr - 1,
+        curr + 1
+      );
+    } else {
+      //it's not touching the edges
+      impactedSquares.push(
+        curr - minor,
+        curr - middle,
+        curr - major,
+        curr - 1,
+        curr + 1,
+        curr + major,
+        curr + middle,
+        curr + minor
+      );
+    }
+    return impactedSquares;
+  }
 
   proximity = (arr, level, boardSize, minesCount, squares) => {
+
+    
     let minor,
       major,
       middle,
@@ -344,11 +288,15 @@ class Index extends React.Component {
       major = 15;
     }
 
+
     //incorrect currStr verification when set to medium or hard
+    //arr = array of mine positions
     for (let i = 0; i < arr.length; i++) {
+      
       let curr = arr[i].squarePos;
       let currStr = curr.toString();
 
+      //try pushing array into new array and then collapsing
       //first column
       if (currStr[1] === '0' || currStr[0] === '0') {
         impactedSquares.push(
@@ -423,7 +371,8 @@ class Index extends React.Component {
     console.log(this.state.matrix, 'matrix')
 
     const grid = squares.map((s, i) => {
-      return <Square key={i} cell={s} disabled={false} onClick={() => this.handleClick(s)}>
+      return <Square onContextMenu={e => this.handleRightClick(e, s)} key={i} cell={s} disabled={false} onClick={e => this.handleClick(s, e)}>
+          {s.hasFlag && <Flag />}
           {s.isOpen && !s.proximityCount && 'F'}
           {s.isOpen && !!s.proximityCount && s.proximityCount}
           {/*s.hasMine && <Mine />*/}
@@ -455,3 +404,4 @@ class Index extends React.Component {
 }
 
 export default Index;
+//handleRightClick={this.handleRightClick}
