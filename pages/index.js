@@ -8,25 +8,34 @@ import Mine from '../components/mine';
 import Flag from '../components/flag';
 import Board from '../components/board';
 import Head from '../components/head';
+import { timingSafeEqual } from 'crypto';
+import GameStatus from '../components/gamestatus';
 //import { render } from 'fela-dom';
 
 class Index extends React.Component {
   constructor(props) {
     super(props);
-    this.state = this.getInitialState()
+    
     this.state = {
       squares: [],
       boardSize: 10,
       level: 'Easy',
       mineCount: 10,
       time: 0,
+      timeOn: false,
       minePos: [],
-     
+      timer: null,
+      showPlayAgain: false,
+      wonOrLost: ''
     };
   }
 
   componentDidMount() {
     this.handleChange(this.state.level);
+  }
+
+  togglePlayAgain = () => {
+    this.setState({ showPlayAgain: !this.state.showPlayAgain})
   }
 
   handleChange = level => {
@@ -112,27 +121,74 @@ class Index extends React.Component {
   };
 
   resetGame = () => {
-    this.setState({
-      squares: [], 
-      boardSize: 10, 
-      level: 'Easy', 
-      mineCount: 10, 
-      time: 0, 
-      minePos: []
-    }, () => {
+    this.setState(
+      {
+        squares: [],
+        boardSize: 10,
+        level: 'Easy',
+        mineCount: 10,
+        minePos: [],
+        showPlayAgain: false,
+        wonOrLost: '',
+        time: 0,
+        timer: null,
+        timeOn: false,
+        start: 0
+      },
+      () => {
         this.handleChange('Easy');
+        this.resetTimer();
         this.setState(prevState => ({ squares: prevState.squares }));
-    }) 
+      }
+    ); 
+  }
+
+  startTimer = () => {
+    this.setState({
+      timeOn: true,
+    });
+    let timer = setInterval(this.addTime, 1000);
+    this.setState({ timer: timer})
+  }
+
+  addTime = () => {
+    this.setState({ time: this.state.time + 1})
+  }
+
+  stopTimer() {
+    //clearInterval(this.timer);
+    //this.setState({ timeOn: false }) 
+    //clearInterval(this.state.timer);   
+    this.setState({ timeOn: false }, () => {
+      
+      clearInterval(this.state.timer)
+    })
+    
+  }
+
+  resetTimer = () => {
+    this.setState({ time: 0, timeOn: false });
   }
 
 
-
   handleClick = (square, e) => {
-    console.log(this.state.squares, 'old squares')
+    if(!this.state.timeOn) {
+      this.startTimer();
+    }
     square.cursor = true;
     if (square.hasMine) {
-      this.resetGame();
-      alert('Game Over!!!!')
+      this.stopTimer();
+      this.state.squares.forEach(square => {
+        square.hasMine ? square.isOpen = true : null
+      })
+      
+      this.setState({ wonOrLost: 'You Lost. Oops', showPlayAgain: true }, () => {
+        
+        this.setState(prevState => ({ 
+          squares: prevState.squares, 
+          showPlayAgain: prevState.showPlayAgain, 
+           }));
+      });
     } else if (square.proximityCount > 0) {
       square.isOpen = true;
       const newSquares = [...this.state.squares];
@@ -147,18 +203,35 @@ class Index extends React.Component {
   };
 
   handleRightClick = (e, cell) => {
+    if (!this.state.timeOn) {
+      this.startTimer();
+    }
     e.preventDefault()
-    
+    if(cell.hasFlag === true) {
+      cell.hasFlag = false;
+      this.setState(prevState => ({ squares: prevState.squares }));
+    }
     if(!cell.isOpen) {
       cell.hasFlag = true;
       const isFlagOnMine = cell.hasMine === true;
       if (isFlagOnMine) {
+        
         this.setState({ mineCount: this.state.mineCount - 1 })
+        if (this.state.mineCount === 1) {
+          this.stopTimer();
+          this.setState({ wonOrLost: 'You Won! Yay', showPlayAgain: true }, () => {
+            this.setState(prevState => ({ 
+              squares: prevState.squares, 
+              showPlayAgain: prevState.showPlayAgain,
+              
+             }));
+          });
+    
+        
+        }
       }
       this.setState(prevState => ({ squares: prevState.squares }))
     }
-    
-
     
   }
 
@@ -338,28 +411,36 @@ class Index extends React.Component {
   };
 
   render() {
-    console.log(this.state.squares)
-    const { boardSize, squares } = this.state;
+    const { boardSize, squares} = this.state;
+
+    const showPlayAgain = this.state.showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null;
 
     const grid = squares.map((s, i) => {
-      const disableStatus = s.isOpen ? true : false
+      const disableStatus = s.isOpen || s.hasFlag? true : false
       return <Square onContextMenu={e => this.handleRightClick(e, s)} key={i} cell={s} disabled={disableStatus} onClick={e => this.handleClick(s, e)}>
           {s.hasFlag && <Flag />}
-          {s.hasMine && <Mine />}
-          {s.isOpen && !s.proximityCount && 'F'}
-          {s.isOpen && !!s.proximityCount && s.proximityCount}
+          {s.hasMine && s.isOpen && <Mine />}
+          {s.isOpen && !s.proximityCount && !s.hasMine && ''}
+          {s.isOpen && !!s.proximityCount && !s.hasMine && `${s.proximityCount}`}
         </Square>;
     });
+
+    const calcTime = time => {
+      return new Date(time * 1000).toISOString().substr(11, 8);
+    }
+
+    const displayTime = calcTime(this.state.time);
 
     return (
       <Layout
         title={`Minesweeper (active)`}
-
         handleChange={this.handleChange}
         mineCount={this.state.mineCount}
-        time={this.state.time}
+        time={displayTime}
       >
-        <Desk boardSize={boardSize}>{grid}</Desk>
+        {showPlayAgain}
+        {/* <GameStatus /> */}
+       <Desk boardSize={boardSize}>{grid}</Desk>
       </Layout>
     );
   }
