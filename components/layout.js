@@ -9,11 +9,11 @@ const Center = createComponent(({ theme }) => ({
   margin: theme.space[4]
 }));
 
-export default ({ children, title = 'Minesweeper', handleChange, flagCount, time }) => (
+export default ({ children, title = 'Minesweeper', handleChange, mineCount, time }) => (
   <StyleProvider>
     <Center>
         <h1>{title}</h1>
-        <div>Flag Count: {flagCount}</div>
+        <div>Mines Left: {mineCount}</div>
         <div>Time: {time} </div>
         <div> Level:
           <select onChange={(e) => handleChange(e.target.value)}>
