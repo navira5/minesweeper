@@ -23,6 +23,7 @@ The rules are pretty simple (try to play with the [demo](https://sweeper.now.sh/
   * Should display initial time in header - DONE
   * Should display reset button which clears the board and resets to easy level - DONE
   * Should display How To Play button which gives rules and click instructions
+  * Should handle easy, medium and hard levels
   
 
 ```User Action```

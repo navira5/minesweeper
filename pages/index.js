@@ -40,25 +40,25 @@ class Index extends React.Component {
 
   handleChange = level => {
     let boardSize;
-    let minesCount;
+    let mineCount;
 
     if (level === 'Easy') {
       boardSize = 10;
-      minesCount = 10;
+      mineCount = 10;
     } else if (level === 'Medium') {
       boardSize = 13;
-      minesCount = 40;
+      mineCount = 40;
     } else if (level === 'Hard') {
       boardSize = 16;
-      minesCount = 99;
+      mineCount = 99;
     }
-    const squares = this.generareSquares(boardSize, minesCount);
+    const squares = this.generareSquares(boardSize, mineCount);
     const squaresWithMine = squares.filter(s => s.hasMine);
     this.setState({ minePos: squaresWithMine, squares})
-    this.proximity(squaresWithMine, level, boardSize, minesCount, squares);
+    this.proximity(squaresWithMine, level, boardSize, mineCount, squares);
   };
 
-  generareSquares = (boardSize, minesCount) => {
+  generareSquares = (boardSize, mineCount) => {
     //make array with objects (info about each square will go in here)
     const squares = [...Array(boardSize * boardSize)].map((s, i) => {
       return {
@@ -71,7 +71,7 @@ class Index extends React.Component {
       };
     });
     //given the num of mines, generate a random index position and change hasMine property to true
-    [...Array(minesCount)].forEach(m => {
+    [...Array(mineCount)].forEach(m => {
       
       //grab square obj using random index position from squares array
       let randomSquare = squares[Math.floor(Math.random() * squares.length)];
@@ -257,6 +257,8 @@ class Index extends React.Component {
       major = 15;
     }
 
+    
+
     //first column
     if (currStr[1] === '0' || currStr[0] === '0') {
       impactedSquares.push(
@@ -312,7 +314,7 @@ class Index extends React.Component {
     return impactedSquares;
   }
 
-  proximity = (arr, level, boardSize, minesCount, squares) => {
+  proximity = (arr, level, boardSize, mineCount, squares) => {
 
     
     let minor,
@@ -334,7 +336,31 @@ class Index extends React.Component {
       major = 15;
     }
 
-
+    //need to find elegant solution to calc edges on medium and hard
+    // const mediumTop = [];
+    // const mediumBottom = [];
+    // const mediumLeft = [];
+    // const mediumRight = [];
+    // let mediumBaseLeft = 0;
+    
+    
+    // if (level === 'Medium') {
+     
+    //     for(var i = 0; i < squares.length; i++) {
+    //       while(i <= 9) {
+    //         mediumTop.push(squares[i]);
+    //       }
+    //       while(i <= 99 && i >= 90) {
+    //         mediumBottom.push(squares[i]);
+    //       }
+    //     }
+    //     for(var i = 0; i < mediumTop.length; i++) {
+    //       mediumBaseLeft+= 13;
+    //       mediumLeft.push(mediumBaseLeft); 
+    //     }
+    //   }
+    
+    // console.log(mediumTop, mediumBottom, mediumLeft, 'medium')
     //incorrect currStr verification when set to medium or hard
     //arr = array of mine positions
     for (let i = 0; i < arr.length; i++) {
@@ -406,7 +432,7 @@ class Index extends React.Component {
       s.proximityCount = impactedSquares[i] ? impactedSquares[i] : 0;
       return s;
     });
-    this.setState({ boardSize, minesCount, squares: newSquares });
+    this.setState({ boardSize, mineCount, squares: newSquares });
 
   };
 
@@ -418,10 +444,12 @@ class Index extends React.Component {
     const grid = squares.map((s, i) => {
       const disableStatus = s.isOpen || s.hasFlag? true : false
       return <Square onContextMenu={e => this.handleRightClick(e, s)} key={i} cell={s} disabled={disableStatus} onClick={e => this.handleClick(s, e)}>
-          {s.hasFlag && <Flag />}
-          {s.hasMine && s.isOpen && <Mine />}
+          {`${s.squarePos}`}
+     
+          {/* {s.hasFlag && <Flag />}
+          {s.hasMine && !s.isOpen && <Mine />}
           {s.isOpen && !s.proximityCount && !s.hasMine && ''}
-          {s.isOpen && !!s.proximityCount && !s.hasMine && `${s.proximityCount}`}
+          {s.isOpen && !!s.proximityCount && !s.hasMine && `${s.proximityCount}`} */}
         </Square>;
     });
 
@@ -439,19 +467,13 @@ class Index extends React.Component {
         time={displayTime}
       >
         {showPlayAgain}
-        {/* <GameStatus /> */}
+      
        <Desk boardSize={boardSize}>{grid}</Desk>
       </Layout>
     );
   }
 }
 
-{
-  /* <Square key={i} disabled={i === 55 || i === 10}>
-  {i === 21 && <Mine />}
-  {i === 25 && <Flag />}
-  {i === 77 ? '4' : ''}
-</Square> */
-}
+
 
 export default Index;
