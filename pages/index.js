@@ -141,6 +141,10 @@ class Index extends React.Component {
 
   minesInProximity = (square, level) => {
     
+    //square.isOpen = true;
+
+    
+
       let minor,
         major,
         middle,
@@ -203,7 +207,7 @@ class Index extends React.Component {
             curr + 1
           );
         } else {
-          //it's not touching the edges
+          //it's not touching an edge
           impactedSquares.push(
             curr - minor,
             curr - middle,
@@ -216,15 +220,28 @@ class Index extends React.Component {
           );
         }
 
-    
+    square.isOpen = true;
+    //array of squares with 0 prox and now open
     const squaresArround = this.state.squares.filter((item) => {
       if (impactedSquares.includes(item.squarePos)) {
-        if (item.proximityCount === 0 && !item.isOpen) {
+        if (item.proximityCount === 0 && !item.isOpen && !item.hasMine) {
+          
           item.isOpen = true;
           return item
+        } else if (!item.hasMine && item.proximityCount > 0) {
+          item.isOpen = true;
         }
       }
     })
+
+    for(let i = 0; i < squaresArround.length; i++) {
+      let newSquareToCheck = squaresArround[i];
+      this.minesInProximity(newSquareToCheck, 'Easy');
+    }
+
+  
+    const updateSquares = this.state.squares;
+    this.setState( {squares: updateSquares})
     console.log(squaresArround, 'squaresArround ')
   
 
@@ -304,6 +321,8 @@ class Index extends React.Component {
       this.minesInProximity(square, 'Easy');
     }
   };
+
+  //handleRightClick = ()
 
   proximity = (arr, level, boardSize, minesCount, squares) => {
     let minor,
@@ -404,18 +423,14 @@ class Index extends React.Component {
     console.log(this.state.matrix, 'matrix')
 
     const grid = squares.map((s, i) => {
-      return (
-        <Square
-          key={i}
-          cell={s}
-          disabled={false}
-          onClick={() => this.handleClick(s)}
-        >
-          {s.hasMine && <Mine />}
-          {s.isOpen && 'OPEN'}
-          {!s.hasMine && `${i}`}
-        </Square>
-      );
+      return <Square key={i} cell={s} disabled={false} onClick={() => this.handleClick(s)}>
+          {s.isOpen && !s.proximityCount && 'F'}
+          {s.isOpen && !!s.proximityCount && s.proximityCount}
+          {/*s.hasMine && <Mine />*/}
+          {/*s.isOpen && !s.proximityCount && 'F'*/}
+          {/*!s.isOpen && !!s.proximityCount && !s.hasMine && `${s.proximityCount}`*/}
+          {/* {!s.hasMine && !s.isOpen && `${s.proximityCount}`} */}
+        </Square>;
     });
 
     return (
