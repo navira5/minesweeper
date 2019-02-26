@@ -15,7 +15,7 @@ import {
   openSquares
 } from '../components/helpers';
 //import { timingSafeEqual } from 'crypto';
-//import { render } from 'fela-dom';
+import { render } from 'fela-dom';
 
 class Index extends React.Component {
   constructor(props) {
