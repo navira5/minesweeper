@@ -6,16 +6,28 @@ import Desk from '../components/desk';
 import Square from '../components/square';
 import Mine from '../components/mine';
 import Flag from '../components/flag';
-import Board from '../components/board';
-import Head from '../components/head';
+import { getSquaresAround } from '../components/helpers';
 import { timingSafeEqual } from 'crypto';
-import GameStatus from '../components/gamestatus';
+import GameStatus from '../components/header/gamestatus';
 //import { render } from 'fela-dom';
 
-class Index extends React.Component {
+type IndexState = {
+  squares: any[],
+  boardSize: number,
+  level: string,
+  mineCount: number,
+  time: number,
+  timeOn: boolean,
+  minePos: any[],
+  timer: number,
+  showPlayAgain: boolean,
+  wonOrLost: string
+};
+
+class Index extends React.Component<{}, IndexState> {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       squares: [],
       boardSize: 10,
@@ -24,7 +36,7 @@ class Index extends React.Component {
       time: 0,
       timeOn: false,
       minePos: [],
-      timer: null,
+      timer: 0,
       showPlayAgain: false,
       wonOrLost: ''
     };
@@ -35,7 +47,7 @@ class Index extends React.Component {
   }
 
   togglePlayAgain = () => {
-    this.setState({ showPlayAgain: !this.state.showPlayAgain})
+    this.setState({ showPlayAgain: !this.state.showPlayAgain })
   }
 
   handleChange = level => {
@@ -54,7 +66,7 @@ class Index extends React.Component {
     }
     const squares = this.generareSquares(boardSize, mineCount);
     const squaresWithMine = squares.filter(s => s.hasMine);
-    this.setState({ minePos: squaresWithMine, squares})
+    this.setState({ minePos: squaresWithMine, squares })
     this.proximity(squaresWithMine, level, boardSize, mineCount, squares);
   };
 
@@ -72,10 +84,10 @@ class Index extends React.Component {
     });
     //given the num of mines, generate a random index position and change hasMine property to true
     [...Array(mineCount)].forEach(m => {
-      
+
       //grab square obj using random index position from squares array
       let randomSquare = squares[Math.floor(Math.random() * squares.length)];
-      
+
       //to avoid duplicates, keep looping while square has mine. If it does, then generate and re-assign a new random position
       while (randomSquare.hasMine) {
         randomSquare = squares[Math.floor(Math.random() * squares.length)];
@@ -84,15 +96,15 @@ class Index extends React.Component {
       randomSquare.hasMine = true;
     });
 
-    
+
     //return squares with mines placed in random positions
     return squares;
   };
 
-  
+
 
   minesInProximity = (square, level) => {
-    
+
     const impactedSquares = this.retrieveSquaresAroundTarget(square, level)
     square.isOpen = true;
 
@@ -100,7 +112,7 @@ class Index extends React.Component {
     const squaresArround = this.state.squares.filter((item) => {
       if (impactedSquares.includes(item.squarePos)) {
         if (item.proximityCount === 0 && !item.isOpen && !item.hasMine) {
-          
+
           item.isOpen = true;
           return item
         } else if (!item.hasMine && item.proximityCount > 0) {
@@ -113,11 +125,11 @@ class Index extends React.Component {
     squaresArround.forEach(s => {
       this.minesInProximity(s, 'Easy');
     })
- 
+
     //make sure game board re-renders
     const updateSquares = this.state.squares;
-    this.setState( {squares: updateSquares})
-  
+    this.setState({ squares: updateSquares })
+
   };
 
   resetGame = () => {
@@ -132,15 +144,14 @@ class Index extends React.Component {
         wonOrLost: '',
         time: 0,
         timer: null,
-        timeOn: false,
-        start: 0
+        timeOn: false
       },
       () => {
         this.handleChange('Easy');
         this.resetTimer();
         this.setState(prevState => ({ squares: prevState.squares }));
       }
-    ); 
+    );
   }
 
   startTimer = () => {
@@ -148,11 +159,12 @@ class Index extends React.Component {
       timeOn: true,
     });
     let timer = setInterval(this.addTime, 1000);
-    this.setState({ timer: timer})
+    console.log('yyyyyyyyyy', timer);
+    this.setState({ timer: timer as number })
   }
 
   addTime = () => {
-    this.setState({ time: this.state.time + 1})
+    this.setState({ time: this.state.time + 1 })
   }
 
   stopTimer() {
@@ -160,10 +172,10 @@ class Index extends React.Component {
     //this.setState({ timeOn: false }) 
     //clearInterval(this.state.timer);   
     this.setState({ timeOn: false }, () => {
-      
+
       clearInterval(this.state.timer)
     })
-    
+
   }
 
   resetTimer = () => {
@@ -172,7 +184,7 @@ class Index extends React.Component {
 
 
   handleClick = (square, e) => {
-    if(!this.state.timeOn) {
+    if (!this.state.timeOn) {
       this.startTimer();
     }
     square.cursor = true;
@@ -181,13 +193,13 @@ class Index extends React.Component {
       this.state.squares.forEach(square => {
         square.hasMine ? square.isOpen = true : null
       })
-      
+
       this.setState({ wonOrLost: 'You Lost. Oops', showPlayAgain: true }, () => {
-        
-        this.setState(prevState => ({ 
-          squares: prevState.squares, 
-          showPlayAgain: prevState.showPlayAgain, 
-           }));
+
+        this.setState(prevState => ({
+          squares: prevState.squares,
+          showPlayAgain: prevState.showPlayAgain,
+        }));
       });
     } else if (square.proximityCount > 0) {
       square.isOpen = true;
@@ -197,42 +209,42 @@ class Index extends React.Component {
       newSquares.splice(square.squarePos, 1, square);
       this.setState({ squares: newSquares });
     } else {
-      
+
       this.minesInProximity(square, 'Easy');
     }
   };
 
   handleRightClick = (e, cell) => {
+    e.preventDefault();
     if (!this.state.timeOn) {
       this.startTimer();
     }
-    e.preventDefault()
-    if(cell.hasFlag === true) {
+    if (cell.hasFlag === true) {
       cell.hasFlag = false;
       this.setState(prevState => ({ squares: prevState.squares }));
     }
-    if(!cell.isOpen) {
+    if (!cell.isOpen) {
       cell.hasFlag = true;
       const isFlagOnMine = cell.hasMine === true;
       if (isFlagOnMine) {
-        
+
         this.setState({ mineCount: this.state.mineCount - 1 })
         if (this.state.mineCount === 1) {
           this.stopTimer();
           this.setState({ wonOrLost: 'You Won! Yay', showPlayAgain: true }, () => {
-            this.setState(prevState => ({ 
-              squares: prevState.squares, 
+            this.setState(prevState => ({
+              squares: prevState.squares,
               showPlayAgain: prevState.showPlayAgain,
-              
-             }));
+
+            }));
           });
-    
-        
+
+
         }
       }
       this.setState(prevState => ({ squares: prevState.squares }))
     }
-    
+
   }
 
   retrieveSquaresAroundTarget = (square, level) => {
@@ -242,7 +254,7 @@ class Index extends React.Component {
       major,
       middle,
       impactedSquares = [];
-  
+
     if (level === 'Easy') {
       minor = 11;
       middle = 10;
@@ -256,8 +268,6 @@ class Index extends React.Component {
       middle = 16;
       major = 15;
     }
-
-    
 
     //first column
     if (currStr[1] === '0' || currStr[0] === '0') {
@@ -315,8 +325,6 @@ class Index extends React.Component {
   }
 
   proximity = (arr, level, boardSize, mineCount, squares) => {
-
-    
     let minor,
       major,
       middle,
@@ -342,10 +350,10 @@ class Index extends React.Component {
     // const mediumLeft = [];
     // const mediumRight = [];
     // let mediumBaseLeft = 0;
-    
-    
+
+
     // if (level === 'Medium') {
-     
+
     //     for(var i = 0; i < squares.length; i++) {
     //       while(i <= 9) {
     //         mediumTop.push(squares[i]);
@@ -359,12 +367,12 @@ class Index extends React.Component {
     //       mediumLeft.push(mediumBaseLeft); 
     //     }
     //   }
-    
+
     // console.log(mediumTop, mediumBottom, mediumLeft, 'medium')
     //incorrect currStr verification when set to medium or hard
     //arr = array of mine positions
     for (let i = 0; i < arr.length; i++) {
-      
+
       let curr = arr[i].squarePos;
       let currStr = curr.toString();
 
@@ -437,20 +445,22 @@ class Index extends React.Component {
   };
 
   render() {
-    const { boardSize, squares} = this.state;
+    const { boardSize, squares } = this.state;
+
 
     const showPlayAgain = this.state.showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null;
 
     const grid = squares.map((s, i) => {
-      const disableStatus = s.isOpen || s.hasFlag? true : false
-      return <Square onContextMenu={e => this.handleRightClick(e, s)} key={i} cell={s} disabled={disableStatus} onClick={e => this.handleClick(s, e)}>
-          {`${s.squarePos}`}
-     
-          {/* {s.hasFlag && <Flag />}
-          {s.hasMine && !s.isOpen && <Mine />}
-          {s.isOpen && !s.proximityCount && !s.hasMine && ''}
-          {s.isOpen && !!s.proximityCount && !s.hasMine && `${s.proximityCount}`} */}
-        </Square>;
+      const disableStatus = s.isOpen || s.hasFlag ? true : false
+
+      return <Square num={s.proximityCount} onContextMenu={e => this.handleRightClick(e, s)} key={i} cell={s} disabled={disableStatus} onClick={e => this.handleClick(s, e)}>
+        {/* {`${s.squarePos}`} */}
+
+        {s.hasFlag && <Flag />}
+        {s.hasMine && s.isOpen && <Mine />}
+        {s.isOpen && !s.proximityCount && !s.hasMine && ''}
+        {s.isOpen && !!s.proximityCount && !s.hasMine && `${s.proximityCount}`}
+      </Square>;
     });
 
     const calcTime = time => {
@@ -467,8 +477,8 @@ class Index extends React.Component {
         time={displayTime}
       >
         {showPlayAgain}
-      
-       <Desk boardSize={boardSize}>{grid}</Desk>
+
+        <Desk boardSize={boardSize}>{grid}</Desk>
       </Layout>
     );
   }

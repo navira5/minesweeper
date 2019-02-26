@@ -13,3 +13,7 @@ if (process.env.NODE_ENV === 'production') {
     }
   };
 }
+
+// next.config.js
+const withTypescript = require('@zeit/next-typescript')
+module.exports = withTypescript()
