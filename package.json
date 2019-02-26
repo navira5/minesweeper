@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "npm run build && next start -p $PORT",
+    "start": "next start -p $PORT",
+    "heroku-postbuild": "npm run build",
     "test": "jest"
   },
   "dependencies": {
