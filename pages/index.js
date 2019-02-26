@@ -6,17 +6,15 @@ import Desk from '../components/desk';
 import Square from '../components/square';
 import Mine from '../components/mine';
 import Flag from '../components/flag';
+import GameStatus from '../components/header/gamestatus';
 import {
-
   calcTime,
   generareSquares,
   minePositions,
   mineProximtyCountLookup,
-  setProximityCount,
   openSquares
 } from '../components/helpers';
-import { timingSafeEqual } from 'crypto';
-import GameStatus from '../components/header/gamestatus';
+//import { timingSafeEqual } from 'crypto';
 //import { render } from 'fela-dom';
 
 class Index extends React.Component {
@@ -188,11 +186,8 @@ class Index extends React.Component {
   render() {
     const { boardSize, squares, showPlayAgain } = this.state;
 
-    const playAgain = showPlayAgain ? (<GameStatus status={this.state.wonOrLost} reset={this.resetGame} />) : null;
-
     const grid = squares.map((s, i) => {
       const disableStatus = s.isOpen || s.hasFlag ? true : false;
-
       return (
         <Square
           num={s.proximityCount}
@@ -200,35 +195,27 @@ class Index extends React.Component {
           key={i}
           cell={s}
           disabled={disableStatus}
-          onClick={e => this.handleClick(s, e)}
-        >
-         
-          {s.hasFlag && <Flag />}
-          {s.hasMine && s.isOpen && <Mine />}
-          {s.isOpen && !s.proximityCount && !s.hasMine && ''}
-          {s.isOpen &&
-            !!s.proximityCount &&
-            !s.hasMine &&
-            `${s.proximityCount}`}
+          onClick={e => this.handleClick(s, e)}>
+            {s.hasFlag && <Flag />}
+            {s.hasMine && s.isOpen && <Mine />}
+            {s.isOpen && !s.proximityCount && !s.hasMine && ''}
+            {s.isOpen &&
+              !!s.proximityCount &&
+              !s.hasMine &&
+              `${s.proximityCount}`}
         </Square>
       );
     });
 
     const displayTime = calcTime(this.state.time);
 
-    return (
-      <Layout
-        title={`Minesweeper`}
-        handleChange={this.handleChange}
-        mineCount={this.state.mineCount}
-        time={displayTime}>
+    return <Layout title={`Minesweeper`} handleChange={this.handleChange} mineCount={this.state.mineCount} time={displayTime}>
+        
+        {showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null}
 
-        {playAgain}
+        <Desk boardSize={boardSize}>{grid}</Desk>
 
-        <Desk boardSize={boardSize}>
-          {grid}</Desk>
-      </Layout>
-    );
+      </Layout>;
   }
 }
 

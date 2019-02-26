@@ -23,11 +23,11 @@ The rules are pretty simple (try to play with the [demo](https://sweeper.now.sh/
   * Should display initial time in header - DONE
   * Should display reset button which clears the board and resets to easy level - DONE
   * Should display How To Play button which gives rules and click instructions
-  * Should handle easy, medium and hard levels
+  * Should handle easy, medium and hard levels -- DONE
   
 
 ```User Action```
-  * First click starts the time
+  * First click starts the time -- DONE
   * Player can left click to reveal/open square. --DONE
   * Player can right click to flag square as mine. -- DONE
   * The number tells how many mines are in the immediate neighborhood -- DONE 

@@ -58,7 +58,6 @@ export const mineProximtyCountLookup = (arr, squares) => {
 }
 
 
-
 export const minePositions = (arr) => {
   let impactedSquares = [];
   const minor = 11;
