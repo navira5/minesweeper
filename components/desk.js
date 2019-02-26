@@ -5,7 +5,11 @@ const Desk = createComponent(({ boardSize }) => ({
   height: 40 * boardSize + 2,
   border: `1px solid black`,
   display: 'flex',
-  flexWrap: 'wrap'
+  flexDirection: 'column',
+  flexWrap: 'wrap',
+  margin: '0 auto'
+
+  
 }));
 
 export default Desk;
