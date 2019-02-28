@@ -8,8 +8,6 @@ const Desk = createComponent(({ boardSize }) => ({
   flexDirection: 'column',
   flexWrap: 'wrap',
   margin: '0 auto',
- 
- 
 }));
 
 export default Desk;

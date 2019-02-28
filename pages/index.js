@@ -10,7 +10,7 @@ import GameStatus from '../components/header/gamestatus';
 import {
   calcTime,
   generareSquares,
-  minePositions,
+  squaresAroundTarget,
   mineProximtyCountLookup,
   openSquares
 } from '../components/helpers';
@@ -20,7 +20,6 @@ import { render } from 'fela-dom';
 class Index extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       squares: [],
       boardSize: 10,
@@ -35,7 +34,7 @@ class Index extends React.Component {
     };
   }
 
-  componentDidMount() {
+  componentDidMount = () => {
     this.handleChange(this.state.level);
   }
 
@@ -53,14 +52,15 @@ class Index extends React.Component {
     } else if (level === 'Hard') {
       mineCount = 40;
     }
+
     const squares = generareSquares(mineCount);
     const squaresWithMine = squares.filter(s => s.hasMine);
     this.setState({ minePos: squaresWithMine, squares, mineCount });
-    this.proximity(squaresWithMine, squares);
+    this.updateSquaresWithProximityCount(squaresWithMine, squares);
   };
 
-  proximity = (arr, squares) => {
-    let impactedSquares = minePositions(arr);
+  updateSquaresWithProximityCount = (squaresWithMine, squares) => {
+    let impactedSquares = squaresAroundTarget(squaresWithMine);
 
     impactedSquares = mineProximtyCountLookup(impactedSquares, squares);
 
@@ -72,8 +72,8 @@ class Index extends React.Component {
     this.setState({ squares: updatedWithProximityCount });
   };
 
-  floodFill = (square) => {
-    const impactedSquares = minePositions([square]);
+  floodFill = square => {
+    const impactedSquares = squaresAroundTarget([square]);
     square.isOpen = true;
 
     //array of squares with 0 prox and now open
@@ -85,7 +85,6 @@ class Index extends React.Component {
     });
 
     this.setState(prevState => ({ squares: prevState.squares }));
-   
   };
 
   resetGame = () => {
@@ -134,11 +133,9 @@ class Index extends React.Component {
   };
 
   handleClick = (square, e) => {
-    
     e.preventDefault();
 
     const {squares, timeOn} = this.state;
-
     if (!timeOn) this.startTimer();
     
     square.cursor = true;
@@ -171,68 +168,68 @@ class Index extends React.Component {
 
     if (!square.isOpen) {
       square.hasFlag = true;
-      const isFlagOnMine = square.hasMine === true;
-      if (isFlagOnMine) {
+      if (square.hasMine) {
         this.setState({ mineCount: this.state.mineCount - 1 });
         if (this.state.mineCount === 1) {
           this.stopTimer();
-          this.setState({ wonOrLost: 'You Won', showPlayAgain: true })
+          this.setState({ wonOrLost: 'You Won', showPlayAgain: true });
         }
       }
     }
   };
 
- 
-
   render() {
 
     const { boardSize, squares, showPlayAgain } = this.state;
+
+    const displayTime = calcTime(this.state.time);
+
     const wrapperGrid = {
-     
       margin: 'auto',
       padding: '0%',
       paddingLeft: '0'
-      
     };
+
     const grid = squares.map((s, i) => {
-      
       const disableStatus = s.isOpen || s.hasFlag ? true : false;
+
       return (
         <Square
-        
           num={s.proximityCount}
           onContextMenu={e => this.handleRightClick(e, s)}
           key={i}
           cell={s}
           disabled={disableStatus}
           onClick={e => this.handleClick(s, e)}>
-            {s.hasFlag && <Flag />}
-            {s.hasMine && s.isOpen && <Mine />}
-            {s.isOpen && !s.proximityCount && !s.hasMine && ''}
-            {s.isOpen &&
-              //need double bang to avoid showing the proximity count when it's 0
-              !!s.proximityCount &&
-              !s.hasMine &&
-              `${s.proximityCount}`}
+
+          {s.hasFlag && <Flag />}
+          {s.hasMine && s.isOpen && <Mine />}
+          {s.isOpen && !s.proximityCount && !s.hasMine && ''}
+          {s.isOpen &&
+            //need double bang to avoid showing the proximity count when it's 0
+            !!s.proximityCount &&
+            !s.hasMine &&
+            `${s.proximityCount}`
+          }
         </Square>
       );
     });
 
-    const displayTime = calcTime(this.state.time);
 
-    return <Layout  title={`Minesweeper`} handleChange={this.handleChange} mineCount={this.state.mineCount} time={displayTime}>
-        {showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null}
+    return <Layout  
+            title={`Minesweeper`} 
+            handleChange={this.handleChange} 
+            mineCount={this.state.mineCount} 
+            time={displayTime}>
+        
+              {showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null}
 
-        <div className="table">
-          <Desk boardSize={boardSize} style={wrapperGrid}>{grid}</Desk>
-        </div>
-      </Layout>;
-       
-             
-  
+              <Desk boardSize={boardSize} style={wrapperGrid}>{
+                grid}
+              </Desk>
+            
+            </Layout>;
   }
 }
-
-
 
 export default Index;

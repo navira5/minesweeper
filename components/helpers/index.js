@@ -58,66 +58,32 @@ export const mineProximtyCountLookup = (arr, squares) => {
 }
 
 
-export const minePositions = (arr) => {
-  let impactedSquares = [];
-  const minor = 11;
-  const middle = 10;
-  const major = 9;
+export const squaresAroundTarget = arr => {
+         let impactedSquares = [];
+         const minor = 11;
+         const middle = 10;
+         const major = 9;
 
-  for (let i = 0; i < arr.length; i++) {
+         for (let i = 0; i < arr.length; i++) {
+           let curr = arr[i].squarePos;
+           let currStr = curr.toString();
 
-    let curr = arr[i].squarePos;
-    let currStr = curr.toString();
-
-    // first column
-    if (currStr[1] === '0' || currStr[0] === '0') {
-      impactedSquares.push(
-        curr + 1,
-        curr + middle,
-        curr + minor,
-        curr - middle,
-        curr - major
-      );
-    } else if (currStr.length === 1) {
-      //first row
-      impactedSquares.push(
-        curr - 1,
-        curr + 1,
-        curr + major,
-        curr + minor,
-        curr + middle
-      );
-    } else if (currStr[1] === '9' ||(currStr[0] === '9' && currStr.length === 1)) {
-      //last column
-      impactedSquares.push(
-        curr - minor,
-        curr - middle,
-        curr - 1,
-        curr + major,
-        curr + middle
-      );
-    } else if (currStr[1] === '9' && currStr.length === 2) {
-      //last row
-      impactedSquares.push(
-        curr - minor,
-        curr - middle,
-        curr - major,
-        curr - 1,
-        curr + 1
-      );
-    } else {
-      //it's not touching an edge
-      impactedSquares.push(
-        curr - minor,
-        curr - middle,
-        curr - major,
-        curr - 1,
-        curr + 1,
-        curr + major,
-        curr + middle,
-        curr + minor
-      );
-    }
-  }
-  return impactedSquares;
+           // first column
+           if (currStr[1] === '0' || currStr[0] === '0') {
+             impactedSquares.push(curr + 1, curr + middle, curr + minor, curr - middle, curr - major);
+           } else if (currStr.length === 1) {
+             //first row
+             impactedSquares.push(curr - 1, curr + 1, curr + major, curr + minor, curr + middle);
+           } else if (currStr[1] === '9' || (currStr[0] === '9' && currStr.length === 1)) {
+             //last column
+             impactedSquares.push(curr - minor, curr - middle, curr - 1, curr + major, curr + middle);
+           } else if (currStr[1] === '9' && currStr.length === 2) {
+             //last row
+             impactedSquares.push(curr - minor, curr - middle, curr - major, curr - 1, curr + 1);
+           } else {
+             //it's not touching an edge
+             impactedSquares.push(curr - minor, curr - middle, curr - major, curr - 1, curr + 1, curr + major, curr + middle, curr + minor);
+           }
+         }
+         return impactedSquares;
 };
