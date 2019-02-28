@@ -7,9 +7,9 @@ const Desk = createComponent(({ boardSize }) => ({
   display: 'flex',
   flexDirection: 'column',
   flexWrap: 'wrap',
-  margin: '0 auto'
-
-  
+  margin: '0 auto',
+  marginRight: '50px',
+ 
 }));
 
 export default Desk;

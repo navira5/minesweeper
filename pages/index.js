@@ -152,7 +152,7 @@ class Index extends React.Component {
         square.hasMine ? (square.isOpen = true) : null;
       });
 
-      this.setState({ wonOrLost: 'You Lost. Oops', showPlayAgain: true })
+      this.setState({ wonOrLost: 'You Lost', showPlayAgain: true })
   
       //cell touches a mine
     } else if (square.proximityCount > 0) {
@@ -176,7 +176,7 @@ class Index extends React.Component {
         this.setState({ mineCount: this.state.mineCount - 1 });
         if (this.state.mineCount === 1) {
           this.stopTimer();
-          this.setState({ wonOrLost: 'You Won! Yay', showPlayAgain: true })
+          this.setState({ wonOrLost: 'You Won', showPlayAgain: true })
         }
       }
     }
@@ -200,6 +200,7 @@ class Index extends React.Component {
             {s.hasMine && s.isOpen && <Mine />}
             {s.isOpen && !s.proximityCount && !s.hasMine && ''}
             {s.isOpen &&
+              //need double bang to avoid showing the proximity count when it's 0
               !!s.proximityCount &&
               !s.hasMine &&
               `${s.proximityCount}`}
@@ -210,12 +211,16 @@ class Index extends React.Component {
     const displayTime = calcTime(this.state.time);
 
     return <Layout title={`Minesweeper`} handleChange={this.handleChange} mineCount={this.state.mineCount} time={displayTime}>
-        
-        {showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null}
-
-        <Desk boardSize={boardSize}>{grid}</Desk>
-
-      </Layout>;
+                  {showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null}
+   
+        <div className="table">
+                  <Desk boardSize={boardSize}>{grid}</Desk>
+                  </div>
+            
+              </Layout>
+       
+             
+  
   }
 }
 

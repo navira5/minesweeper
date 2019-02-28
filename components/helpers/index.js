@@ -69,7 +69,6 @@ export const minePositions = (arr) => {
     let curr = arr[i].squarePos;
     let currStr = curr.toString();
 
-    // try pushing array into new array and then collapsing
     // first column
     if (currStr[1] === '0' || currStr[0] === '0') {
       impactedSquares.push(
@@ -88,10 +87,7 @@ export const minePositions = (arr) => {
         curr + minor,
         curr + middle
       );
-    } else if (
-      currStr[1] === '9' ||
-      (currStr[0] === '9' && currStr.length === 1)
-    ) {
+    } else if (currStr[1] === '9' ||(currStr[0] === '9' && currStr.length === 1)) {
       //last column
       impactedSquares.push(
         curr - minor,
@@ -110,7 +106,7 @@ export const minePositions = (arr) => {
         curr + 1
       );
     } else {
-      //it's not touching the edges
+      //it's not touching an edge
       impactedSquares.push(
         curr - minor,
         curr - middle,

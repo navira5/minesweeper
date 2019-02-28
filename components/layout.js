@@ -22,49 +22,56 @@ export default ({ children, title = 'Minesweeper', handleChange, mineCount, time
   
 
   const wrapper = {
-    width: '50%',
+    width: '100%',
     height: '50px',
     margin: 'auto',
-    padding: '10px',
+    padding: '0%',
     fontSize: '16px'
   };
 
   const left = {
-    width: '50%',
+    // width: '50%',
     float: 'left',
-    marginRight: '20px'
+    // marginRight: '20px'
   }
   
   const right = {
+    // width: '50%',
     float: 'left',
-    marginLeft: '50%',
+    // marginLeft: '20%',
   }
 
-  const level = {
-    margin: '20px 10px',
-    padding: '5px'
-  }
+  const level = { width: '50%', border: `1px solid black`, float: 'center', margin: 'auto', margin: '20px 0 20px 0', padding: '0' };
   
   return <StyleProvider>
-      <Center>
-        <h1>{title}</h1>
-        <div style={wrapper}>
-          <div style={left}>Mines Left: {mineCount} </div>
-          <div stlye={right}>{time}</div>
+        <Center>
+      <form>
+        <div className="form-group">
+            <h3>{title}</h3>
+            <div style={wrapper}>
+              {/* <div>Mines Left: {mineCount} </div> */}
+              <div >Mines:{mineCount} </div> 
+              <div >{time}</div> 
+              {/* <div>{time}</div> */}
+              
+            </div>
+            <div>
+              {' '}
+          
+            <select style={level} onChange={e => handleChange(e.target.value)}>
+                <option value="Easy">Select</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+            {children}
         </div>
-        <div>
-          {' '}
-          Level:
-          <select style={level} onChange={e => handleChange(e.target.value)}>
-            <option value="Easy">Default Easy</option>
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Hard">Hard</option>
-          </select>
-        </div>
-        {children}
+        </form>
       </Center>
-    </StyleProvider>;
+      </StyleProvider>
+ 
+  
 }
 
 
