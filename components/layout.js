@@ -11,9 +11,9 @@ const Center = createComponent(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   textAlign: 'center',
-  width: '50%',
+  // width: '50%',
   margin: '0 auto',
-  padding: '10px',
+  // padding: '10px',
   color: 'rgb(32, 32, 32)'
 
 }));
@@ -41,7 +41,7 @@ export default ({ children, title = 'Minesweeper', handleChange, mineCount, time
     // marginLeft: '20%',
   }
 
-  const level = { width: '50%', border: `1px solid black`, float: 'center', margin: 'auto', margin: '20px 0 20px 0', padding: '0' };
+  const level = { width: '150px', border: `1px solid black`, float: 'center', margin: 'auto', margin: '20px 0 20px 0', padding: '0' };
   
   return <StyleProvider>
         <Center>

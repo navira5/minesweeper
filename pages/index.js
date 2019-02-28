@@ -182,14 +182,24 @@ class Index extends React.Component {
     }
   };
 
+ 
 
   render() {
-    const { boardSize, squares, showPlayAgain } = this.state;
 
+    const { boardSize, squares, showPlayAgain } = this.state;
+    const wrapperGrid = {
+     
+      margin: 'auto',
+      padding: '0%',
+      paddingLeft: '0'
+      
+    };
     const grid = squares.map((s, i) => {
+      
       const disableStatus = s.isOpen || s.hasFlag ? true : false;
       return (
         <Square
+        
           num={s.proximityCount}
           onContextMenu={e => this.handleRightClick(e, s)}
           key={i}
@@ -210,14 +220,13 @@ class Index extends React.Component {
 
     const displayTime = calcTime(this.state.time);
 
-    return <Layout title={`Minesweeper`} handleChange={this.handleChange} mineCount={this.state.mineCount} time={displayTime}>
-                  {showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null}
-   
+    return <Layout  title={`Minesweeper`} handleChange={this.handleChange} mineCount={this.state.mineCount} time={displayTime}>
+        {showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null}
+
         <div className="table">
-                  <Desk boardSize={boardSize}>{grid}</Desk>
-                  </div>
-            
-              </Layout>
+          <Desk boardSize={boardSize} style={wrapperGrid}>{grid}</Desk>
+        </div>
+      </Layout>;
        
              
   

@@ -10,7 +10,7 @@ const GameStatus = createComponent(
     flexDirection: 'row',
     textAlign: 'center',
     width: '100%',
-    margin: '0 auto',
+    margin: '20px auto',
     padding: '10px'
   }),
   'div'
