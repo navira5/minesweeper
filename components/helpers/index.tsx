@@ -1,6 +1,7 @@
 export const calcTime = time => {
   return new Date(time * 1000).toISOString().substr(11, 8);
 };
+/*  SET THE BOARD AND PLACE MINES IN RANDOM POSITIONS */
 export const generareSquares = mineCount => {
   //make array with objects (info about each square will go in here)
   const squares = [...Array(100)].map((s, i) => {
@@ -27,8 +28,12 @@ export const generareSquares = mineCount => {
   //return squares with mines placed in random positions
   return squares;
 };
+
+
+/*  USED FOR FLOOD FILL TO OPEN SQUARES WITH NO MINES IN ITS VICINITY */
 export const openSquares = (squares, impactedSquares) => {
   const floodTheseSquares = squares.filter(item => {
+    //hash map to reduce O(n) vs quick to implementation like below but quadratic
     if (impactedSquares.includes(item.squarePos)) {
       if (item.proximityCount === 0 && !item.isOpen && !item.hasMine) {
         item.isOpen = true;
@@ -40,6 +45,8 @@ export const openSquares = (squares, impactedSquares) => {
   });
   return floodTheseSquares;
 };
+
+/*  OBJ ={SQR INDEX: NUMBER OF MINES TOUCHING THIS SQR INDEX} */
 export const mineProximtyCountLookup = (arr, squares) => {
   return arr.reduce((acc, item) => {
     if (item >= 0 && item < squares.length) {
@@ -48,6 +55,8 @@ export const mineProximtyCountLookup = (arr, squares) => {
     return acc;
   }, {});
 };
+
+/*  GRAB ALL SQUARES TOUCHING THE MIDDLE SQUARE AND RETURN AS ARRAY */
 export const squaresAroundTarget = arr => {
   let impactedSquares = [];
   const minor = 11;
