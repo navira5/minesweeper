@@ -11,14 +11,14 @@ open http://localhost:3000
 ```
 
 ## Rules
-* Flag Placement: Right click OR hold button for one second 
+* Flag Placement: Right click OR click (touch for touchscreen devices) and hold for one second 
 * Open Square: Left/regular click
 
 ## Demo
 
 https://minesweeper-navira.herokuapp.com
 
-* User Stories:
+## User Stories to create game
 
   ```Board Set Up```
   * Should be able to select easy, medium, hard levels; default is easy - DONE
