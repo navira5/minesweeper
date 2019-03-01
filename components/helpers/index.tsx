@@ -2,7 +2,7 @@ export const calcTime = time => {
   return new Date(time * 1000).toISOString().substr(11, 8);
 };
 /*  SET THE BOARD AND PLACE MINES IN RANDOM POSITIONS */
-export const generareSquares = mineCount => {
+export const generateSquares = mineCount => {
   //make array with objects (info about each square will go in here)
   const squares = [...Array(100)].map((s, i) => {
     return {

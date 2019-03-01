@@ -8,7 +8,7 @@ import Flag from "../components/flag";
 import GameStatus from "../components/header/gamestatus";
 import {
   calcTime,
-  generareSquares,
+  generateSquares,
   squaresAroundTarget,
   mineProximtyCountLookup,
   openSquares
@@ -29,7 +29,7 @@ type IndexState = {
   wonOrLost: string,
   windowWidth: number
 };
-//remove all unused states abd variables 
+
 class Index extends React.Component<{}, IndexState> {
   constructor(props) {
     super(props);
@@ -74,7 +74,7 @@ class Index extends React.Component<{}, IndexState> {
     } else if (level === "Hard") {
       mineCount = 40;
     }
-    const squares = generareSquares(mineCount);
+    const squares = generateSquares(mineCount);
     const squaresWithMine = squares.filter(s => s.hasMine);
     this.setState({ minePos: squaresWithMine, squares, mineCount });
     this.updateSquaresWithProximityCount(squaresWithMine, squares);
@@ -91,14 +91,15 @@ class Index extends React.Component<{}, IndexState> {
   };
 
   floodFill = square => {
+    //O(1) b/c array will always have length of 1
     const impactedSquares = squaresAroundTarget([square]);
     square.isOpen = true;
 
-    //array of squares with 0 prox and now open
-    const squaresArround = openSquares(this.state.squares, impactedSquares);
+    //array of squares with 0 prox and now open; O(n^2) b/c of .includes is nested in .filter method
+    const squaresWithNoMinesTouchingIt = openSquares(this.state.squares, impactedSquares);
 
-    //recursively check for any squares with 0 proximity squares touching
-    squaresArround.forEach(s => {
+    //recursively check for any squares with 0 proximity squares touching; O(n) linear
+    squaresWithNoMinesTouchingIt.forEach(s => {
       this.floodFill(s);
     });
 
@@ -182,7 +183,7 @@ class Index extends React.Component<{}, IndexState> {
   handleRightClick = (e, square) => {
     e.preventDefault();
     if (!this.state.timeOn) this.startTimer();
-    if (!square.isOpen) {
+    if (!square.isOpen && !square.hasFlag) {
       square.hasFlag = true;
       if (square.hasMine) {
         this.setState({ mineCount: this.state.mineCount - 1 });
