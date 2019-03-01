@@ -6,5 +6,4 @@ const Flag = () => (
     </g>
   </svg>
 );
-
 export default Flag;

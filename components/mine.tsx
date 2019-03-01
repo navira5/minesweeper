@@ -6,5 +6,4 @@ const Mine = () => (
     />
   </svg>
 );
-
 export default Mine;

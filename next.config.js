@@ -1,15 +1,14 @@
 const Uglify = require('uglifyjs-webpack-plugin');
+const withTypescript = require('@zeit/next-typescript');
 
-if (process.env.NODE_ENV === 'production') {
-  module.exports = {
-    webpack: function(c) {
-      c.plugins = c.plugins.filter(
-        plugin => plugin.constructor.name !== 'UglifyJsPlugin'
-      );
-
-      c.plugins.push(new Uglify());
-
-      return c;
-    }
-  };
-}
+module.exports = withTypescript({
+  // webpack(config, options) {
+  //   if (process.env.NODE_ENV === 'production') {
+  //     config.plugins = config.plugins.filter(
+  //       plugin => plugin.constructor.name !== 'UglifyJsPlugin'
+  //     );
+  //     config.plugins.push(new Uglify());
+  //   }
+  //   return config;
+  // }  
+});
