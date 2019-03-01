@@ -10,9 +10,11 @@ yarn dev
 open http://localhost:3000
 ```
 
-## Rules
+## Controls & Rules
 * Flag Placement: Right click OR click (touch for touchscreen devices) and hold for one second 
 * Open Square: Left/regular click
+* Lose: When user opens squares that has a mine
+* Win: When flags are placed on all mines
 
 ## Demo
 
