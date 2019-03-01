@@ -11,8 +11,12 @@ open http://localhost:3000
 ```
 
 ## Rules
+* Flag Placement: Right click OR hold button for one second 
+* Open Square: Left/regular click
 
-The rules are pretty simple (try to play with the [demo](https://sweeper.now.sh/)):
+## Demo
+
+https://minesweeper-navira.herokuapp.com
 
 * User Stories:
 
