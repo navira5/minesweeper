@@ -16,7 +16,7 @@ const Square = createComponent(
     boxShadow: 'inset 0px 0px 10px rgb(169,169,169)'
   }),
   'div',
-  ['onClick', 'onContextMenu']
+  ['onClick', 'onContextMenu', 'onTouchStart', 'onTouchEnd', 'onMouseDown', 'onMouseUp', 'onMouseLeave']
 );
 
 export default Square;

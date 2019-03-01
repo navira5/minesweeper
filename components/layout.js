@@ -16,8 +16,10 @@ const Center = createComponent(({ theme }) => ({
 
 }));
 
-export default ({ children, title = 'Minesweeper', handleChange, mineCount, time }) => {
+export default ({ children, title = 'Minesweeper', isMobile, handleChange, mineCount, time }) => {
   
+  //const showMobileButton = !isMobile ? <button onClick={toggleClickType}>Open or Flag</button> : null;
+  //console.log(isMobile, 'window width')
   const wrapper = {
     width: '100%',
     height: '50px',
@@ -34,6 +36,8 @@ export default ({ children, title = 'Minesweeper', handleChange, mineCount, time
     margin: '20px 0 20px 0', 
     padding: '0' 
   };
+
+
   
   return <StyleProvider>
           <Center>
@@ -53,10 +57,11 @@ export default ({ children, title = 'Minesweeper', handleChange, mineCount, time
                     <option value="Medium">Medium</option>
                     <option value="Hard">Hard</option>
                   </select>
-            
+          
                 {children}
                 </div>
               </form>
+           
           </Center>
         </StyleProvider>
  

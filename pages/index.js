@@ -28,15 +28,26 @@ class Index extends React.Component {
       time: 0,
       timeOn: false,
       minePos: [],
-      timer: null,
+      timer: 0,
       showPlayAgain: false,
-      wonOrLost: ''
+      wonOrLost: '',
+      width: 0
     };
   }
 
+  updateDimensions = () => {
+    this.setState({ width: window.innerWidth });
+  };
+
+  componentWillUnmount = () => {
+    window.removeEventListener('resize', this.updateDimensions);
+  };
+
   componentDidMount = () => {
+    this.setState({ width: window.innerWidth });
     this.handleChange(this.state.level);
-  }
+    window.addEventListener('resize', this.updateDimensions);
+  };
 
   togglePlayAgain = () => {
     this.setState({ showPlayAgain: !this.state.showPlayAgain });
@@ -77,9 +88,9 @@ class Index extends React.Component {
     square.isOpen = true;
 
     //array of squares with 0 prox and now open
-    const squaresArround = openSquares(this.state.squares, impactedSquares)
- 
-    //recursively check for any squares with 0 proximity squares touching 
+    const squaresArround = openSquares(this.state.squares, impactedSquares);
+
+    //recursively check for any squares with 0 proximity squares touching
     squaresArround.forEach(s => {
       this.floodFill(s);
     });
@@ -122,11 +133,11 @@ class Index extends React.Component {
     this.setState({ time: this.state.time + 1 });
   };
 
-  stopTimer() {
+  stopTimer = () => {
     this.setState({ timeOn: false }, () => {
       clearInterval(this.state.timer);
     });
-  }
+  };
 
   resetTimer = () => {
     this.setState({ time: 0, timeOn: false });
@@ -135,9 +146,9 @@ class Index extends React.Component {
   handleClick = (square, e) => {
     e.preventDefault();
 
-    const {squares, timeOn} = this.state;
+    const { squares, timeOn } = this.state;
     if (!timeOn) this.startTimer();
-    
+
     square.cursor = true;
 
     //lose game
@@ -149,8 +160,8 @@ class Index extends React.Component {
         square.hasMine ? (square.isOpen = true) : null;
       });
 
-      this.setState({ wonOrLost: 'You Lost', showPlayAgain: true })
-  
+      this.setState({ wonOrLost: 'You Lost', showPlayAgain: true });
+
       //cell touches a mine
     } else if (square.proximityCount > 0) {
       square.isOpen = true;
@@ -178,9 +189,21 @@ class Index extends React.Component {
     }
   };
 
-  render() {
+  handleButtonPress = (e, s) => {
+    this.btimer = setTimeout(() => {
+      this.handleRightClick(e, s);
+    }, 1000);
+  };
 
-    const { boardSize, squares, showPlayAgain } = this.state;
+  handleButtonRelease = () => {
+    clearTimeout(this.btimer)
+  };
+
+  render() {
+    const { boardSize, squares, showPlayAgain, width } = this.state;
+
+    console.log(width, 'window');
+    const isTouchScreen = width <= 768;
 
     const displayTime = calcTime(this.state.time);
 
@@ -195,40 +218,53 @@ class Index extends React.Component {
 
       return (
         <Square
+        
+          //handles long click functionality
+          onTouchStart={e => this.handleButtonPress(e, s)}
+          onTouchEnd={e => this.handleButtonRelease(e, s)}
+          onMouseDown={e => this.handleButtonPress(e, s)}
+          onMouseUp={e => this.handleButtonRelease(e, s)}
+          onMouseLeave={e => this.handleButtonRelease(e, s)}
+          isTouchScreen={isTouchScreen}
+
           num={s.proximityCount}
-          onContextMenu={e => this.handleRightClick(e, s)}
+          onContextMenu={e =>
+            isTouchScreen ? this.handleLongPress() : this.handleRightClick(e, s)
+          }
           key={i}
           cell={s}
           disabled={disableStatus}
-          onClick={e => this.handleClick(s, e)}>
-
+          onClick={e => this.handleClick(s, e)}
+        >
           {s.hasFlag && <Flag />}
           {s.hasMine && s.isOpen && <Mine />}
           {s.isOpen && !s.proximityCount && !s.hasMine && ''}
           {s.isOpen &&
-            //need double bang to avoid showing the proximity count when it's 0
             !!s.proximityCount &&
             !s.hasMine &&
-            `${s.proximityCount}`
-          }
+            `${
+              s.proximityCount //need double bang to avoid showing the proximity count when it's 0
+            }`}
         </Square>
       );
     });
 
+    return (
+      <Layout
+        title={`Minesweeper`}
+        handleChange={this.handleChange}
+        mineCount={this.state.mineCount}
+        time={displayTime}
+      >
+        {showPlayAgain ? (
+          <GameStatus status={this.state.wonOrLost} reset={this.resetGame} />
+        ) : null}
 
-    return <Layout  
-            title={`Minesweeper`} 
-            handleChange={this.handleChange} 
-            mineCount={this.state.mineCount} 
-            time={displayTime}>
-        
-              {showPlayAgain ? <GameStatus status={this.state.wonOrLost} reset={this.resetGame} /> : null}
-
-              <Desk boardSize={boardSize} style={wrapperGrid}>{
-                grid}
-              </Desk>
-            
-            </Layout>;
+        <Desk boardSize={boardSize} style={wrapperGrid}>
+          {grid}
+        </Desk>
+      </Layout>
+    );
   }
 }
 
